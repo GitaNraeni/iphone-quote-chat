@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IQC - iPhone Quote Generator</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#000000;
+      --card: rgba(30,41,59,0.35);
+      --card2: rgba(255,255,255,0.06);
+      --border: rgba(255,255,255,0.16);
+      --text: #ffffff;
+      --muted:#9ca3af;
+      --primary:#3b82f6;
+      --primary2:#2563eb;
+      --glow: rgba(59,130,246,0.7);
+      --cyan1:#06b6d4;
+      --cyan2:#0ea5e9;
+      --danger:#ef4444;
+    }
+    *{ margin:0; padding:0; box-sizing:border-box; }
+    body{
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    #particles{ position: fixed; top:0; left:0; width:100%; height:100%; z-index:-2; }
+    .vignette{
+      position: fixed; inset: 0; pointer-events:none; z-index:-1;
+      background: radial-gradient(closest-side, rgba(59,130,246,0.10), rgba(0,0,0,0.92));
+      mix-blend-mode: screen; opacity: .55;
+    }
+
+    .container{
+      min-height: 100vh;
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 18px 16px 22px;
+      display:flex; flex-direction:column; gap: 14px;
+    }
+
+    .header{
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 10px 2px;
+    }
+    .brand{
+      display:flex; flex-direction:column; line-height: 1.1;
+    }
+    .brand .title{
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #93c5fd;
+      text-shadow: 0 0 14px var(--glow);
+      text-transform: uppercase;
+    }
+    .brand .subtitle{ display:none; }
+
+    .chip{
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(255,255,255,0.9);
+      border: 1px solid rgba(96,165,250,0.35);
+      background: rgba(96,165,250,0.08);
+      padding: 8px 12px;
+      border-radius: 999px;
+      box-shadow: 0 0 14px rgba(59,130,246,0.25);
+      user-select:none;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+    .chip:active{ transform: scale(0.98); }
+
+    .card{
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.10);
+      backdrop-filter: blur(18px);
+      border-radius: 22px;
+      box-shadow: 0 0 30px rgba(59,130,246,0.18);
+      overflow: hidden;
+    }
+
+    .hero{
+      padding: 18px 16px 10px;
+      text-align:center;
+    }
+    .hero h1{
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      background: linear-gradient(90deg, var(--primary), var(--primary2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 14px var(--glow);
+      text-transform: uppercase;
+    }
+    .hero p{
+      margin-top: 8px;
+      font-size: 12px;
+      color: rgba(156,163,175,0.85);
+    }
+
+    .card-inner{ padding: 16px; }
+
+    .field{ display:flex; flex-direction:column; gap: 8px; margin-bottom: 14px; }
+    label{
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 11px;
+      letter-spacing: 1.2px;
+      color: rgba(156,163,175,0.95);
+      text-transform: uppercase;
+    }
+    input, select, textarea{
+      width:100%;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      outline: none;
+      font-size: 15px;
+      transition: box-shadow .25s ease, border-color .25s ease;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    textarea{ resize: none; min-height: 110px; line-height: 1.35; }
+    input::placeholder, textarea::placeholder{ color: rgba(107,114,128,0.95); }
+    input:focus, select:focus, textarea:focus{
+      border-color: rgba(59,130,246,0.9);
+      box-shadow: 0 0 14px rgba(59,130,246,0.55);
+    }
+
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .btn{
+      border: none;
+      cursor: pointer;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 1px;
+      transition: transform .2s ease, box-shadow .25s ease, opacity .2s ease, filter .2s ease;
+      user-select:none;
+      text-decoration:none;
+      text-align:center;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:100%;
+      font-family: Orbitron, Inter, sans-serif;
+      text-transform: uppercase;
+    }
+    .btn:active{ transform: scale(0.98); }
+
+    .btn.primary{
+      background: linear-gradient(45deg, var(--primary), #1e40af);
+      color: white;
+      box-shadow: 0 0 20px rgba(59,130,246,0.55);
+      animation: pulseGlow 2s infinite;
+    }
+    .btn.primary:hover{
+      transform: translateY(-1px);
+      box-shadow: 0 0 28px rgba(59,130,246,0.9);
+      filter: brightness(1.02);
+    }
+    @keyframes pulseGlow{
+      0%,100%{ box-shadow: 0 0 16px rgba(59,130,246,0.55); }
+      50%{ box-shadow: 0 0 28px rgba(59,130,246,0.95); }
+    }
+
+    .btn.cyan{
+      background: linear-gradient(45deg, var(--cyan1), var(--cyan2));
+      color: white;
+      box-shadow: 0 0 18px rgba(14,165,233,0.65);
+    }
+    .btn.cyan:hover{ transform: translateY(-1px); box-shadow: 0 0 24px rgba(14,165,233,0.9); }
+
+    .btn.ghost{
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      font-weight: 700;
+    }
+    .btn.ghost:hover{ box-shadow: 0 0 16px rgba(255,255,255,0.10); filter: brightness(1.05); }
+
+    .btn.danger{
+      background: rgba(239,68,68,0.12);
+      border: 1px solid rgba(239,68,68,0.30);
+      color: rgba(255,255,255,0.92);
+      box-shadow: 0 0 16px rgba(239,68,68,0.18);
+    }
+    .btn.danger:hover{ box-shadow: 0 0 18px rgba(239,68,68,0.35); filter: brightness(1.03); }
+
+    .btn[disabled]{ opacity: .55; cursor: not-allowed; animation: none; filter: grayscale(10%); }
+
+    .error{ font-size: 12px; color: rgba(239,68,68,0.95); margin-top: 8px; display:none; }
+    .error.show{ display:block; }
+
+    /* RESULTS */
+    .results{
+      margin-top: 14px;
+      display:none;
+      gap: 12px;
+      flex-direction:column;
+      align-items:center;
+      opacity:0;
+      transition: opacity .35s ease;
+    }
+    .results.show{ display:flex; opacity:1; }
+
+    .result-image{
+      width: 100%;
+      border-radius: 18px;
+      box-shadow: 0 0 26px rgba(59,130,246,0.7);
+      border: 1px solid rgba(96,165,250,0.25);
+      animation: fadeIn .55s ease;
+      background: rgba(255,255,255,0.03);
+    }
+    @keyframes fadeIn{ from{opacity:0; transform: scale(.99);} to{opacity:1; transform: scale(1);} }
+
+    /* Action buttons after result */
+    .actions3{
+      width:100%;
+      display:grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+    }
+
+    /* GENERATE wrapper (so we can hide it) */
+    #generateWrapper{ margin-top:14px; }
+
+    .overlay{
+      position: fixed; inset: 0;
+      display:none; align-items:center; justify-content:center;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      z-index: 50; opacity:0;
+      transition: opacity .18s ease;
+    }
+    .overlay.show{ display:flex; opacity:1; }
+    .overlay-card{
+      width: min(360px, 86vw);
+      background: rgba(30,41,59,0.45);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      padding: 18px 16px;
+      box-shadow: 0 0 30px rgba(59,130,246,0.35);
+      display:flex; align-items:center; gap: 12px;
+      transform: scale(.96);
+      animation: pop .22s ease forwards;
+    }
+    @keyframes pop{ to{ transform: scale(1);} }
+    .spinner{
+      width: 34px; height: 34px;
+      border-radius: 999px;
+      border: 3px solid rgba(255,255,255,0.18);
+      border-top-color: rgba(59,130,246,0.95);
+      box-shadow: 0 0 12px rgba(59,130,246,0.55);
+      animation: spin 0.9s linear infinite;
+      flex: 0 0 auto;
+    }
+    @keyframes spin{ to{ transform: rotate(360deg);} }
+    .overlay-text .t1{
+      font-family: Orbitron, Inter, sans-serif;
+      font-weight: 800;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.95);
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+    .overlay-text .t2{ font-size: 12px; color: rgba(156,163,175,0.95); margin-top: 4px; }
+
+    /* Menu overlay */
+    .menu-backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      z-index: 60;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 14px;
+    }
+    .menu-backdrop.show{ display:flex; }
+    .menu-card{
+      width: min(420px, 92vw);
+      background: rgba(30,41,59,0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: 0 0 34px rgba(59,130,246,0.28);
+    }
+    .menu-title{
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-align:center;
+      margin: 6px 0 14px;
+      color: rgba(255,255,255,0.95);
+      text-transform: uppercase;
+    }
+    .menu-item{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.92);
+      font-family: Orbitron, Inter, sans-serif;
+      letter-spacing: 1px;
+      text-decoration:none;
+      margin-top: 10px;
+      transition: box-shadow .2s ease, transform .2s ease, filter .2s ease;
+    }
+    .menu-item:hover{
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 0 18px rgba(59,130,246,0.18);
+    }
+    .menu-dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.95);
+      box-shadow: 0 0 12px rgba(59,130,246,0.65);
+      flex: 0 0 auto;
+    }
+
+    footer{
+      margin-top:auto;
+      padding: 14px 4px 0;
+      text-align:center;
+      font-size: 12px;
+      color: rgba(156,163,175,0.9);
+      opacity: 0.85;
+    }
+
+    @media (max-width: 420px){
+      .hero h1{ font-size: 18px; }
+      input, select, textarea{ font-size: 14px; }
+      .btn{ font-size: 12px; }
+      .actions3{ grid-template-columns: 1fr; }
+    }
+  
+    /* Modern Alert Modal (pengganti alert() native biar tetep "ada" tapi tampilannya keren) */
+    .malert-backdrop{
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(10px);
+      z-index: 999;
+    }
+    .malert-backdrop.show{ display:flex; }
+    .malert{
+      width: min(520px, 92vw);
+      border-radius: 22px;
+      background: rgba(17,24,39,0.78);
+      border: 1px solid rgba(255,255,255,0.14);
+      box-shadow: 0 0 34px rgba(59,130,246,0.22);
+      overflow: hidden;
+      transform: translateY(10px) scale(0.98);
+      opacity: 0;
+      animation: malertIn .18s ease forwards;
+    }
+    @keyframes malertIn{ to{ transform: translateY(0) scale(1); opacity: 1; } }
+    .malert-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding: 14px 14px 10px;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.04);
+    }
+    .malert-title{
+      font-family: Orbitron, Inter, sans-serif;
+      font-weight: 800;
+      letter-spacing: 1px;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.92);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .malert-dot{
+      width: 10px; height: 10px;
+      border-radius: 999px;
+      background: rgba(59,130,246,0.95);
+      box-shadow: 0 0 14px rgba(59,130,246,0.7);
+      flex: 0 0 auto;
+    }
+    .malert-dot.error{
+      background: rgba(239,68,68,0.95);
+      box-shadow: 0 0 14px rgba(239,68,68,0.55);
+    }
+    .malert-dot.ok{
+      background: rgba(14,165,233,0.95);
+      box-shadow: 0 0 14px rgba(14,165,233,0.55);
+    }
+    .malert-close{
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.9);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-family: Orbitron, Inter, sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: filter .18s ease, transform .18s ease, box-shadow .18s ease;
+    }
+    .malert-close:hover{
+      filter: brightness(1.08);
+      box-shadow: 0 0 16px rgba(59,130,246,0.18);
+      transform: translateY(-1px);
+    }
+    .malert-body{
+      padding: 14px 14px 16px;
+      color: rgba(255,255,255,0.88);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .malert-hint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(156,163,175,0.9);
+    }
+    .malert-actions{
+      display:flex;
+      gap: 10px;
+      padding: 0 14px 14px;
+    }
+    .malert-btn{
+      flex: 1 1 auto;
+      border-radius: 14px;
+      padding: 12px 12px;
+      border: 1px solid rgba(255,255,255,0.14);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.92);
+      font-family: Orbitron, Inter, sans-serif;
+      font-weight: 800;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform .18s ease, filter .18s ease, box-shadow .18s ease;
+    }
+    .malert-btn:active{ transform: scale(0.99); }
+    .malert-btn.primary{
+      border-color: rgba(59,130,246,0.35);
+      background: rgba(59,130,246,0.12);
+      box-shadow: 0 0 18px rgba(59,130,246,0.16);
+    }
+
+  </style>
+</head>
+
+<body>
+  <canvas id="particles"></canvas>
+  <div class="vignette"></div>
+
+  <div class="menu-backdrop" id="menuBackdrop" aria-hidden="true">
+    <div class="menu-card" id="menuCard" role="dialog" aria-label="Menu">
+      <div class="menu-title">Menu</div>
+      <a class="menu-item" href="#" onclick="return false;">
+        <span class="menu-dot"></span>
+        Kalkulator GamePass V2
+      </a>
+      <a class="menu-item" href="#" onclick="return false;">
+        <span class="menu-dot"></span>
+        Kalkulator Game Pass V1
+      </a>
+    </div>
+  </div>
+
+  <div class="overlay" id="loadingOverlay" aria-hidden="true">
+    <div class="overlay-card">
+      <div class="spinner" aria-label="Loading"></div>
+      <div class="overlay-text">
+        <div class="t1">Generating...</div>
+        <div class="t2">Nunggu bentar, masih loading.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <div class="brand">
+        <div class="title">IQC</div>
+        <div class="subtitle">hidden</div>
+      </div>
+      <div class="chip" id="chipMenu" title="Menu">IQC</div>
+    </div>
+
+    <div class="card">
+      <div class="hero">
+        <h1>iPhone Quote Generator</h1>
+      </div>
+
+      <div class="card-inner">
+        <div class="field">
+          <label for="messageInput">Pesan</label>
+          <textarea id="messageInput" maxlength="200" placeholder="Tulis pesan kamu..."></textarea>
+          <div class="error" id="errMessage">Pesan kosong. Mau generate apa?</div>
+        </div>
+
+        <div class="grid2">
+          <div class="field">
+            <label for="batteryInput">Baterai</label>
+            <input id="batteryInput" type="number" placeholder="77" min="0" max="100" inputmode="numeric" />
+          </div>
+
+          <div class="field">
+            <label for="providerInput">Provider</label>
+            <input id="providerInput" placeholder="Telkomsel" autocomplete="off" />
+          </div>
+
+          <div class="field">
+            <label for="timeInput">Jam</label>
+            <input id="timeInput" type="text" placeholder="11:11 / 11.11" inputmode="numeric" autocomplete="off" />
+            <div class="error" id="errTime">Jam salah. Format: HH:MM (boleh HH.MM).</div>
+          </div>
+
+          <div class="field">
+            <label>Signal</label>
+            <input value="LTE" disabled />
+          </div>
+        </div>
+
+        <!-- Only visible before success -->
+        <div id="generateWrapper">
+          <button class="btn primary" id="btnGenerate">Generate</button>
+        </div>
+
+        <!-- Only visible after success -->
+        <div class="results" id="results">
+          <img id="previewImg" class="result-image" alt="Generated image preview" />
+          <div class="actions3">
+            <button class="btn cyan" id="btnDownload" disabled>Download</button>
+            <button class="btn ghost" id="btnRegenerate" disabled>Regenerate</button>
+            <button class="btn danger" id="btnReset">Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>kwocag © <span id="year"></span></footer>
+  </div>
+
+
+  <!-- Modern Alert Modal (custom) -->
+  <div class="malert-backdrop" id="malertBackdrop" aria-hidden="true">
+    <div class="malert" id="malertCard" role="dialog" aria-modal="true" aria-label="Notification">
+      <div class="malert-head">
+        <div class="malert-title">
+          <span class="malert-dot" id="malertDot"></span>
+          <span id="malertTitle">Notice</span>
+        </div>
+</div>
+      <div class="malert-body">
+        <div id="malertMessage">...</div>
+        <div class="malert-hint" id="malertHint" style="display:none;"></div>
+      </div>
+      <div class="malert-actions">
+        <button class="malert-btn primary" id="malertOk" type="button">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== Particles =====
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    function resizeCanvas(){ canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resizeCanvas();
+
+    let particles = [];
+    const mouse = { x: null, y: null };
+
+    class Particle{
+      constructor(x,y,size,sx,sy){ this.x=x; this.y=y; this.size=size; this.sx=sx; this.sy=sy; }
+      update(){
+        this.x += this.sx; this.y += this.sy;
+        if (this.size > 0.25) this.size -= 0.015;
+
+        if (mouse.x !== null && mouse.y !== null){
+          const dx = this.x - mouse.x, dy = this.y - mouse.y;
+          const d = Math.sqrt(dx*dx + dy*dy);
+          if (d < 110 && this.size < 5){ this.x += dx/12; this.y += dy/12; }
+        }
+
+        if (this.x < -20) this.x = canvas.width + 20;
+        if (this.x > canvas.width + 20) this.x = -20;
+        if (this.y < -20) this.y = canvas.height + 20;
+        if (this.y > canvas.height + 20) this.y = -20;
+      }
+      draw(){
+        ctx.fillStyle = "rgba(59,130,246,0.7)";
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles(){
+      particles = [];
+      const count = Math.min(140, Math.floor((canvas.width * canvas.height) / 18000));
+      for (let i=0; i<count; i++){
+        particles.push(new Particle(
+          Math.random()*canvas.width,
+          Math.random()*canvas.height,
+          Math.random()*3 + 0.8,
+          (Math.random()-0.5)*0.9,
+          (Math.random()-0.5)*0.9
+        ));
+      }
+    }
+
+    function animate(){
+      ctx.clearRect(0,0,canvas.width,canvas.height);
+      for (let i=0; i<particles.length; i++){
+        const p = particles[i];
+        p.update(); p.draw();
+        if (p.size <= 0.28){
+          particles.splice(i,1); i--;
+          particles.push(new Particle(
+            Math.random()*canvas.width,
+            Math.random()*canvas.height,
+            Math.random()*3 + 0.8,
+            (Math.random()-0.5)*0.9,
+            (Math.random()-0.5)*0.9
+          ));
+        }
+      }
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener("mousemove", (e)=>{ mouse.x = e.clientX; mouse.y = e.clientY; });
+    window.addEventListener("mouseleave", ()=>{ mouse.x = null; mouse.y = null; });
+    window.addEventListener("resize", ()=>{ resizeCanvas(); initParticles(); });
+
+    initParticles(); animate();
+
+    // ===== Menu behavior =====
+    const chipMenu = document.getElementById('chipMenu');
+    const menuBackdrop = document.getElementById('menuBackdrop');
+    const menuCard = document.getElementById('menuCard');
+
+    function openMenu(){
+      menuBackdrop.classList.add('show');
+      menuBackdrop.setAttribute('aria-hidden','false');
+    }
+    function closeMenu(){
+      menuBackdrop.classList.remove('show');
+      menuBackdrop.setAttribute('aria-hidden','true');
+    }
+
+    chipMenu.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      openMenu();
+    });
+    menuBackdrop.addEventListener('click', ()=> closeMenu());
+    menuCard.addEventListener('click', (e)=> e.stopPropagation());
+
+    // ===== Generator =====
+    const messageInput = document.getElementById('messageInput');
+    const batteryInput = document.getElementById('batteryInput');
+    const providerInput = document.getElementById('providerInput');
+    const timeInput = document.getElementById('timeInput');
+
+    const errMessage = document.getElementById('errMessage');
+    const errTime = document.getElementById('errTime');
+
+    const generateWrapper = document.getElementById('generateWrapper');
+
+    const btnGenerate = document.getElementById('btnGenerate');
+    const btnDownload = document.getElementById('btnDownload');
+    const btnRegenerate = document.getElementById('btnRegenerate');
+    const btnReset = document.getElementById('btnReset');
+
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const results = document.getElementById('results');
+    const previewImg = document.getElementById('previewImg');
+
+    let isGenerating = false;
+    let lastUrl = null;
+    let lastDownloadUrl = null;
+    let lastBlobUrl = null;
+
+    // ===== Modern Alert (ngganti alert() native) =====
+    const malertBackdrop = document.getElementById('malertBackdrop');
+    const malertCard = document.getElementById('malertCard');
+const malertOk = document.getElementById('malertOk');
+    const malertDot = document.getElementById('malertDot');
+    const malertTitle = document.getElementById('malertTitle');
+    const malertMessage = document.getElementById('malertMessage');
+    const malertHint = document.getElementById('malertHint');
+
+    function openMAlert({title="Notice", message="", hint="", type=""} = {}){
+      if (!malertBackdrop) return;
+      malertTitle.textContent = title;
+      malertMessage.textContent = message;
+      if (hint && hint.trim()){
+        malertHint.style.display = "block";
+        malertHint.textContent = hint;
+      } else {
+        malertHint.style.display = "none";
+        malertHint.textContent = "";
+      }
+      malertDot.className = "malert-dot" + (type ? (" " + type) : "");
+      malertBackdrop.classList.add('show');
+      malertBackdrop.setAttribute('aria-hidden','false');
+    }
+    function closeMAlert(){
+      if (!malertBackdrop) return;
+      malertBackdrop.classList.remove('show');
+      malertBackdrop.setAttribute('aria-hidden','true');
+    }
+malertOk.addEventListener('click', closeMAlert);
+    malertBackdrop.addEventListener('click', closeMAlert);
+    malertCard.addEventListener('click', (e)=> e.stopPropagation());
+
+    // "Alert masih ada", cuma tampilannya kita bikin modern.
+    window.alert = (msg)=> openMAlert({title:"Info", message:String(msg ?? ""), type:"error"});
+
+
+    function showOverlay(){
+      loadingOverlay.classList.add('show');
+      loadingOverlay.setAttribute('aria-hidden','false');
+    }
+    function hideOverlay(){
+      loadingOverlay.classList.remove('show');
+      loadingOverlay.setAttribute('aria-hidden','true');
+    }
+
+    function sanitizeBattery(){
+      const val = batteryInput.value;
+      if (val === "" || val === null || val === undefined) return 77;
+      let n = parseInt(val, 10);
+      if (Number.isNaN(n)) n = 77;
+      return Math.max(0, Math.min(100, n));
+    }
+
+    function normalizeTime(raw){
+      const v = (raw || "").trim();
+      if (!v) return "11:11";
+      const fixed = v.replace('.', ':');
+      const m = /^(\d{1,2}):(\d{2})$/.exec(fixed);
+      if (!m) return null;
+      const hh = Number(m[1]);
+      const mm = Number(m[2]);
+      if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null;
+      return String(hh).padStart(2,'0') + ":" + m[2];
+    }
+
+    function getProvider(){
+      const p = (providerInput.value || "").trim();
+      return p ? p : "TELKOMSEL";
+    }
+
+    function validate(){
+      const okMessage = messageInput.value.trim().length > 0;
+      const t = normalizeTime(timeInput.value);
+      const okTime = (t !== null);
+
+      errMessage.classList.toggle('show', !okMessage);
+      errTime.classList.toggle('show', !okTime);
+
+      return { ok: okMessage && okTime, time: t };
+    }
+
+    function setGeneratingState(on){
+      isGenerating = on;
+      btnGenerate.disabled = on;
+      btnRegenerate.disabled = on;
+      if (on){
+        btnDownload.disabled = true;
+      }
+    }
+
+    function loadImage(src){
+      return new Promise((resolve, reject)=>{
+        const img = new Image();
+        img.onload = ()=> resolve();
+        img.onerror = ()=> reject(new Error("Image failed to load"));
+        img.src = src;
+      });
+    }
+
+    function buildApiUrl(timeValue){
+      const carrierName = getProvider();
+      const message = messageInput.value.trim();
+      const batteryPercentage = sanitizeBattery();
+      const signalStrength = "4"; // LTE
+      return `https://brat.siputzx.my.id/iphone-quoted?time=${encodeURIComponent(timeValue)}&messageText=${encodeURIComponent(message)}&carrierName=${encodeURIComponent(carrierName)}&batteryPercentage=${batteryPercentage}&signalStrength=${signalStrength}&emojiStyle=apple`;
+    }
+
+    function cleanupBlobUrl(){
+      if (lastBlobUrl){
+        URL.revokeObjectURL(lastBlobUrl);
+        lastBlobUrl = null;
+      }
+    }
+
+    async function generate(){
+      if (isGenerating) return;
+
+      const v = validate();
+      if (!v.ok) return;
+
+      timeInput.value = v.time;
+
+      if (!providerInput.value.trim()) providerInput.value = "TELKOMSEL";
+
+      const url = buildApiUrl(v.time);
+      lastUrl = url;
+      // Download pakai proxy Vercel biar gak kena CORS
+      lastDownloadUrl = `/api/iphone-quoted?time=${encodeURIComponent(v.time)}`
+        + `&messageText=${encodeURIComponent(messageInput.value.trim())}`
+        + `&carrierName=${encodeURIComponent(getProvider())}`
+        + `&batteryPercentage=${sanitizeBattery()}`
+        + `&signalStrength=4&emojiStyle=apple`;
+
+      setGeneratingState(true);
+      showOverlay();
+
+      // optional: clear old preview while regenerating
+      previewImg.src = url;
+
+      try{
+        await loadImage(url);
+
+        // Show results & hide Generate button after success
+        results.classList.add('show');
+        generateWrapper.style.display = "none";
+
+        btnDownload.disabled = false;
+        btnRegenerate.disabled = false;
+
+      }catch(e){
+        window.alert("Gagal generate. Cek internet / API.");
+      }finally{
+        hideOverlay();
+        setGeneratingState(false);
+      }
+    }
+
+    async function download(){
+      if (!lastDownloadUrl) return;
+try{
+        btnDownload.disabled = true;
+        btnDownload.textContent = "Downloading...";
+
+        cleanupBlobUrl();
+
+        const res = await fetch(lastDownloadUrl, { cache: "no-store" });
+        if (!res.ok) throw new Error("Fetch failed");
+        const blob = await res.blob();
+
+        lastBlobUrl = URL.createObjectURL(blob);
+
+        const a = document.createElement('a');
+        a.href = lastBlobUrl;
+        a.download = "generated-image.png";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+      }catch(e){
+        window.alert("Download gagal. Proxy /api bermasalah atau API upstream lagi down.");
+      }finally{
+        btnDownload.textContent = "Download";
+        btnDownload.disabled = false;
+      }
+    }
+
+    function resetForm(){
+      cleanupBlobUrl();
+      lastUrl = null;
+      lastDownloadUrl = null;
+
+      previewImg.src = "";
+      results.classList.remove('show');
+
+      // Bring back Generate button
+      generateWrapper.style.display = "block";
+
+      messageInput.value = "";
+      batteryInput.value = "";
+      providerInput.value = "";
+      timeInput.value = "";
+
+      errMessage.classList.remove('show');
+      errTime.classList.remove('show');
+
+      btnDownload.disabled = true;
+      btnRegenerate.disabled = true;
+    }
+
+    btnGenerate.addEventListener('click', generate);
+    btnRegenerate.addEventListener('click', generate);
+    btnDownload.addEventListener('click', download);
+    btnReset.addEventListener('click', resetForm);
+
+    timeInput.addEventListener('input', ()=>{
+      if (timeInput.value.includes('.')) timeInput.value = timeInput.value.replace('.', ':');
+    });
+    batteryInput.addEventListener('blur', ()=>{ batteryInput.value = String(sanitizeBattery()); });
+
+    // init
+    const y = document.getElementById('year');
+    if (y) y.textContent = String(new Date().getFullYear());
+    resetForm();
+  </script>
+</body>
+</html>
